@@ -14,9 +14,13 @@ def is_file(path):
         print('archivo existe')
         return True
     else:
-        print('archivo no existe')
+        print('archivo no existe, ingrese datos a cargar')
         return False
 
+def validar(num):
+    while num.isnumeric() == False:
+        num = input('valor no admitido, vuelva a ingresar un número: ')
+    return int(num)
 
 def ingreso_ruta():
     if not os.path.isdir(path):
@@ -64,12 +68,31 @@ def legajo_datos(path):
     """
 
     if is_file(path):
+
+        # leyendo legajo
+
+        # sobreescritura
+
         pass
     else:
-        input('')
+        # legajo no existe
+        with open(path, mode = 'w') as csv_file:
+            fieldnames = ['Legajo','Apellido','Nombre']
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames,delimiter=';',lineterminator='\r')
+            writer.writeheader()
 
-
-    pass
+            while True:
+                dic_data = {}
+                dic_data['Legajo'] = validar(input('Ingrese numero Legajo: '))
+                dic_data['Apellido'] = input('Ingrese Apellido Legajo: ')
+                dic_data['Nombre'] = input('Ingrese Nombre Legajo: ')
+                
+                writer.writerow(dic_data)
+                
+                salida = input('Desea seguir ingresando datos? y/n: ')
+                if salida.upper() == 'N':
+                    break
+    
 
 def main():
     """
