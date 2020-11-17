@@ -22,11 +22,6 @@ def validar(num):
         num = input('valor no admitido, vuelva a ingresar un número: ')
     return int(num)
 
-def ingreso_ruta():
-    if not os.path.isdir(path):
-        os.mkdir(path)
-
-
 def gastos_legajo(path, codigo_legado, path2):
     """
     docstring
@@ -62,49 +57,54 @@ def gastos_legajo(path, codigo_legado, path2):
     else:
         print("Legajo {Legajo} : {Nombre} {Apellido}, gastó ${Gastos}".format(**dic_datos) )
 
-def legajo_datos(path):
+def datos_legajo():
+    lista_datos = []
+    while True:
+            dic_data = {}
+            dic_data['Legajo'] = validar(input('Ingrese numero Legajo: '))
+            dic_data['Apellido'] = input('Ingrese Apellido Legajo: ')
+            dic_data['Nombre'] = input('Ingrese Nombre Legajo: ')
+            lista_datos.append(dic_data)
+            
+            salida = input('Desea seguir ingresando datos? y/n: ')
+            if salida.upper() == 'N':
+                break
+    return lista_datos
+
+def acciones_legajo(path, accion='S'):
     """
     Contempla acciones a tomar sobre archivo legajo
     """
+    fieldnames = ['Legajo','Apellido','Nombre']
 
-    if is_file(path):
+    if accion.upper()=='A':
+        with open(path, mode="a", newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames,delimiter=';',lineterminator='\r')
+            for data in datos_legajo():
+                writer.writerow(data)
 
-        # leyendo legajo
-
-        # sobreescritura
-
-        pass
-    else:
-        # legajo no existe
+    # sobreescritura
+    elif accion.upper()=='S':
         with open(path, mode = 'w') as csv_file:
-            fieldnames = ['Legajo','Apellido','Nombre']
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames,delimiter=';',lineterminator='\r')
             writer.writeheader()
+            for data in datos_legajo():
+                writer.writerow(data)
 
-            while True:
-                dic_data = {}
-                dic_data['Legajo'] = validar(input('Ingrese numero Legajo: '))
-                dic_data['Apellido'] = input('Ingrese Apellido Legajo: ')
-                dic_data['Nombre'] = input('Ingrese Nombre Legajo: ')
-                
-                writer.writerow(dic_data)
-                
-                salida = input('Desea seguir ingresando datos? y/n: ')
-                if salida.upper() == 'N':
-                    break
-    
+    else:
+        print('comando invalido ')
 
 def main():
     """
     Programa principal
     """
 
-    # ruta = input("Por favor ingrese las rutas del archivo a cargar: ")
-
+    FILENAME['legajo_datos'] = input("Por favor, ingrese nombre de archivo de dato de legajo: ")
     path = os.path.join(PATH,FILENAME['legajo_datos'])
-    # path = './src/legajo_datos.csv'
-
-    is_file(path)
+    
+    if not is_file(path):
+        print('por favor cree datos de archivo de legajo')
+        acciones_legajo(path, 'S')
 
     print("Bienvenido al menú interactivo")
     while True:
@@ -117,8 +117,17 @@ def main():
 
         if opcion == '1':
 
-            legajo_datos(path)
-        
+            if is_file(path):
+                # leyendo legajo
+                print('mostrando datos actuales de archivo ...')
+                with open(path) as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        print(row)
+            
+            accion = input('Desea agregar(a) o sobreescribir(s) archivo? Ingrese "a" o "s": ')
+            acciones_legajo(path, accion)
+
         elif opcion == '2':
             codigo_legado = input('Ingrese el código de Legajo a buscar ...\n')
 
